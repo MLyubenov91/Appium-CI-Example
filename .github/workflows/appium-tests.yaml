@@ -37,21 +37,37 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-android-sdk
 
+    - name: Install Dependencies
+      run: |
+        sdkmanager --install 'system-images;android-33;google_apis;x86_64' 'emulator'
+        sdkmanager --licenses
+
+    - name: Create AVD
+      run: |
+        echo no | avdmanager create avd --force -n test --abi google_apis/x86_64 --package 'system-images;android-33;google_apis;x86_64'
+        echo "hw.cpu.ncore=2" >> ~/.android/avd/test.avd/config.ini
+
     - name: Start Android emulator
-      uses: reactivecircus/android-emulator-runner@v2
-      with:
-        api-level: 33
-        target: google_apis
-        arch: x86_64
-        emulator-options: '-no-window -no-audio -gpu swiftshader_indirect -no-snapshot -no-boot-anim'
-        emulator-boot-timeout: 15m
-        script: |
-          # Wait for emulator to be fully booted
-          adb wait-for-device
-          adb shell settings put global window_animation_scale 0
-          adb shell settings put global transition_animation_scale 0
-          adb shell settings put global animator_duration_scale 0
-          adb shell input keyevent 82
+      run: |
+        nohup emulator -avd test -no-window -no-audio -gpu swiftshader_indirect -no-snapshot -no-boot-anim -accel off > emulator.log 2>&1 &
+        # Wait for emulator to start
+        adb wait-for-device
+        adb shell getprop sys.boot_completed
+
+    # - name: Start Android emulator
+    #   uses: reactivecircus/android-emulator-runner@v2
+    #   with:
+    #     api-level: 33
+    #     target: google_apis
+    #     arch: x86_64
+    #     emulator-options: '-no-window -no-audio -gpu swiftshader_indirect -no-snapshot -no-boot-anim'
+    #     emulator-boot-timeout: 15m
+    #     script: |
+    #       adb wait-for-device
+    #       adb shell settings put global window_animation_scale 0
+    #       adb shell settings put global transition_animation_scale 0
+    #       adb shell settings put global animator_duration_scale 0
+    #       adb shell input keyevent 82
 
     # - name: Create and start Android emulator
     #   run: |
