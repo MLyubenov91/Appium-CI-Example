@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MobileGestursTesting")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1ae790821bec1315045653270dcf79be7e9f8cb0")]
 [assembly: System.Reflection.AssemblyProductAttribute("MobileGestursTesting")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MobileGestursTesting")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
