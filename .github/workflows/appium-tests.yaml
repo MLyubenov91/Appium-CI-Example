@@ -10,7 +10,8 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest  # Switching to macOS runner
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -19,7 +20,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         distribution: 'zulu'
-        java-version: '21'
+        java-version: '11'  # Java 11 is more stable with Android builds
 
     - name: Set up Android SDK
       uses: android-actions/setup-android@v2
@@ -27,63 +28,26 @@ jobs:
         api-level: 33
         build-tools: '33.0.2'
 
-    - name: Cache Android SDK
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.android/cache
-          ~/.android/avd
-        key: ${{ runner.os }}-android-sdk
-        restore-keys: |
-          ${{ runner.os }}-android-sdk
-
-    - name: Install Dependencies
+    - name: Install Android SDK components
       run: |
-        sdkmanager --install 'system-images;android-33;default;arm64-v8a' 'emulator'
+        sdkmanager --install 'system-images;android-33;google_apis;x86_64' 'emulator'
         sdkmanager --licenses
 
     - name: Create AVD
       run: |
-        echo no | avdmanager create avd --force -n test --abi default/arm64-v8a --package 'system-images;android-33;default;arm64-v8a'
+        echo no | avdmanager create avd --force -n test -k 'system-images;android-33;google_apis;x86_64' --device 'pixel'
         echo "hw.cpu.ncore=2" >> ~/.android/avd/test.avd/config.ini
-
-    # - name: Start Android emulator
-    #   run: |
-    #     nohup emulator -avd test -no-window -no-audio -gpu swiftshader_indirect -no-snapshot -no-boot-anim -accel off > emulator.log 2>&1 &
-    #     # Wait for emulator to start
-    #     adb wait-for-device
-    #     adb shell getprop sys.boot_completed
+        echo "hw.gpu.mode=auto" >> ~/.android/avd/test.avd/config.ini
+        echo "hw.ramSize=2048" >> ~/.android/avd/test.avd/config.ini
 
     - name: Start Android emulator
-      uses: reactivecircus/android-emulator-runner@v2
-      with:
-        api-level: 33
-        target: default
-        arch: arm64-v8a
-        disable-linux-hw-accel: true
-        emulator-options: '-no-window -no-audio -gpu swiftshader_indirect -no-snapshot -no-boot-anim -verbose'
-        emulator-boot-timeout: 15m
-        script: |
-          adb wait-for-device
-          adb shell settings put global window_animation_scale 0
-          adb shell settings put global transition_animation_scale 0
-          adb shell settings put global animator_duration_scale 0
-          adb shell input keyevent 82
-
-    # - name: Create and start Android emulator
-    #   run: |
-
-    #     echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-30;google_apis;x86_64"
-        
-    #     echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-30;google_apis;x86_64" --force
-
-    #     $ANDROID_HOME/emulator/emulator-headless @test -no-window -no-audio -gpu swiftshader_indirect -no-snapshot -no-boot-anim &
-
-    #     adb wait-for-device
-    #     adb shell settings put global window_animation_scale 0
-    #     adb shell settings put global transition_animation_scale 0
-    #     adb shell settings put global animator_duration_scale 0
-    #     adb shell input keyevent 82
+      run: |
+        nohup emulator -avd test -no-snapshot -no-boot-anim -accel on -gpu on > /dev/null 2>&1 &
+        adb wait-for-device
+        adb shell settings put global window_animation_scale 0
+        adb shell settings put global transition_animation_scale 0
+        adb shell settings put global animator_duration_scale 0
+        adb shell input keyevent 82
 
     - name: Set Up .NET core
       uses: actions/setup-dotnet@v3
@@ -99,7 +63,7 @@ jobs:
       run: |
         npm install -g appium@2.0.0-beta.63
         appium driver install uiautomator2
-        nohup appium &
+        nohup appium > /dev/null 2>&1 &
 
     - name: Install Dependencies
       run: dotnet restore
@@ -109,3 +73,7 @@ jobs:
   
     - name: Run Tests
       run: dotnet test --verbosity normal
+
+    - name: Clean Up Emulator
+      if: always()
+      run: adb -s emulator-5554 emu kill
