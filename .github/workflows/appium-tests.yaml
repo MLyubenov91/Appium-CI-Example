@@ -35,20 +35,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-android-sdk
 
-    - name: Create and start Android emulator
-      run: |
-        echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-30;google_apis;x86_64"
-        echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-30;google_apis;x86_64" --force
-        $ANDROID_HOME/emulator/emulator-headless @test -no-window -no-audio -gpu swiftshader_indirect -no-snapshot -no-boot-anim &
-    
-    - name: Wait for Android emulator to start
-      run: |
-        adb wait-for-device
-        adb shell settings put global window_animation_scale 0
-        adb shell settings put global transition_animation_scale 0
-        adb shell settings put global animator_duration_scale 0
-        adb shell input keyevent 82
-
     - name: Set Up .NET core
       uses: actions/setup-dotnet@v3
       with:
@@ -70,6 +56,22 @@ jobs:
 
     - name: Build
       run: dotnet build --no-restore
+
+    - name: Create and start Android emulator
+      run: |
+        echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-30;google_apis;x86_64"
+        echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-30;google_apis;x86_64" --force
+        $ANDROID_HOME/emulator/emulator-headless @test -no-window -no-audio -gpu swiftshader_indirect -no-snapshot -no-boot-anim &
+    
+    - name: Wait for Android emulator to start
+      run: |
+        adb wait-for-device
+        adb shell settings put global window_animation_scale 0
+        adb shell settings put global transition_animation_scale 0
+        adb shell settings put global animator_duration_scale 0
+        adb shell input keyevent 82
+
+    
 
     - name: Run Tests
       run: dotnet test --verbosity normal
