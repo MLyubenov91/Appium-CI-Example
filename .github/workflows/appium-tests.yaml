@@ -40,14 +40,30 @@ jobs:
         echo "hw.gpu.mode=auto" >> ~/.android/avd/test.avd/config.ini
         echo "hw.ramSize=2048" >> ~/.android/avd/test.avd/config.ini
 
+    # - name: Start Android emulator
+    #   run: |
+    #     nohup emulator -avd test -no-snapshot -no-boot-anim -accel on -gpu on > /dev/null 2>&1 &
+    #     adb wait-for-device
+    #     adb shell settings put global window_animation_scale 0
+    #     adb shell settings put global transition_animation_scale 0
+    #     adb shell settings put global animator_duration_scale 0
+    #     adb shell input keyevent 82
+
     - name: Start Android emulator
-      run: |
-        nohup emulator -avd test -no-snapshot -no-boot-anim -accel on -gpu on > /dev/null 2>&1 &
-        adb wait-for-device
-        adb shell settings put global window_animation_scale 0
-        adb shell settings put global transition_animation_scale 0
-        adb shell settings put global animator_duration_scale 0
-        adb shell input keyevent 82
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 33
+        target: google_apis
+        arch: x86_64
+        disable-linux-hw-accel: true
+        emulator-options: 'nohup emulator -avd test -no-snapshot -no-boot-anim -accel on -gpu on > /dev/null 2>&1 &'
+        emulator-boot-timeout: 15m
+        script: |
+          adb wait-for-device
+          adb shell settings put global window_animation_scale 0
+          adb shell settings put global transition_animation_scale 0
+          adb shell settings put global animator_duration_scale 0
+          adb shell input keyevent 82    
 
     - name: Set Up .NET core
       uses: actions/setup-dotnet@v3
