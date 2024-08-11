@@ -1,0 +1,41 @@
+name: Appium CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set Up .NET core
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '6.0.x'
+
+    - name: Set Up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'    
+
+    - name: Install and Run Appium Server
+      run: |
+        npm install -g appium@2.0.0-beta.63
+        appium driver install uiautomator2
+        nohup appium &
+
+    - name: Install Dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --no-restore
+
+    - name: Run Tests
+      run: dotnet test --verbosity normal
