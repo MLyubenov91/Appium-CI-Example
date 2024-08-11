@@ -18,7 +18,7 @@ namespace MobileGestursTesting
                 PlatformName = "Android",
                 AutomationName = "UiAutomator2",
                 DeviceName = "Pixel 7 API 34",
-                App = @"./ApiDemos-debug.apk",
+                App = @"./apk/ApiDemos-debug.apk",
                 PlatformVersion = "14"
             };
 
