@@ -18,7 +18,7 @@ namespace MobileGestursTesting
                 PlatformName = "Android",
                 AutomationName = "UiAutomator2",
                 DeviceName = "Pixel 7 API 34",
-                App = "C:\\Users\\Martin\\OneDrive - Software University (SoftUni)\\Documents\\QA\\09. Front-End Test Automation - July 2024\\11. Exercise Appium Mobile - Part 2\\ApiDemos-debug.apk",
+                App = @"./ApiDemos-debug.apk",
                 PlatformVersion = "14"
             };
 
