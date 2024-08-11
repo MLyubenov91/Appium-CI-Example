@@ -27,6 +27,14 @@ jobs:
         api-level: 30
         build-tools: '30.0.3'
 
+    - name: Start Android emulator
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 33
+        target: google_apis
+        arch: x86_64
+        device: test
+
     - name: Cache Android SDK
       uses: actions/cache@v3
       with:
@@ -35,20 +43,20 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-android-sdk
 
-    - name: Create and start Android emulator
-      run: |
+    # - name: Create and start Android emulator
+    #   run: |
 
-        echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-30;google_apis;x86_64"
+    #     echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-30;google_apis;x86_64"
         
-        echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-30;google_apis;x86_64" --force
+    #     echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-30;google_apis;x86_64" --force
 
-        $ANDROID_HOME/emulator/emulator-headless @test -no-window -no-audio -gpu swiftshader_indirect -no-snapshot -no-boot-anim &
+    #     $ANDROID_HOME/emulator/emulator-headless @test -no-window -no-audio -gpu swiftshader_indirect -no-snapshot -no-boot-anim &
 
-        adb wait-for-device
-        adb shell settings put global window_animation_scale 0
-        adb shell settings put global transition_animation_scale 0
-        adb shell settings put global animator_duration_scale 0
-        adb shell input keyevent 82
+    #     adb wait-for-device
+    #     adb shell settings put global window_animation_scale 0
+    #     adb shell settings put global transition_animation_scale 0
+    #     adb shell settings put global animator_duration_scale 0
+    #     adb shell input keyevent 82
 
     - name: Set Up .NET core
       uses: actions/setup-dotnet@v3
