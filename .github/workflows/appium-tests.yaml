@@ -31,6 +31,9 @@ jobs:
         appium driver install uiautomator2
         nohup appium &
 
+    - name: Install Android SDK
+      run: sdkmanager "platform-tools"
+
     - name: Install Dependencies
       run: dotnet restore
 
